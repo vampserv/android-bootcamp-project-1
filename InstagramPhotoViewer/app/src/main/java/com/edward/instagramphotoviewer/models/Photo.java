@@ -14,6 +14,8 @@ public class Photo {
     public String imageUrl;
     public String createdAt;
     public int likes;
+    public String authorPhoto;
+    public String location;
 
 
     public static ArrayList<Photo> getMockPhotos() {

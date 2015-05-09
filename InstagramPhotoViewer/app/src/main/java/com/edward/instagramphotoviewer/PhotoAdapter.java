@@ -1,14 +1,17 @@
 package com.edward.instagramphotoviewer;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Transformation;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.edward.instagramphotoviewer.models.Photo;
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -33,15 +36,25 @@ public class PhotoAdapter extends ArrayAdapter<Photo> {
 
         TextView tvCaption = (TextView) convertView.findViewById(R.id.tvCaption);
         TextView tvAuthor = (TextView) convertView.findViewById(R.id.tvAuthor);
+        TextView tvAuthorTop = (TextView) convertView.findViewById(R.id.tvAuthorTop);
+        TextView tvLocation = (TextView) convertView.findViewById(R.id.tvLocation);
         TextView tvLikes = (TextView) convertView.findViewById(R.id.tvLikes);
         ImageView ivPhoto = (ImageView) convertView.findViewById(R.id.ivPhoto);
+        ImageView ivAuthorPhoto = (ImageView) convertView.findViewById(R.id.ivAuthorPhoto);
 
         tvCaption.setText(photo.caption);
         tvAuthor.setText(photo.author);
+        tvAuthorTop.setText(photo.author);
+//        tvLocation.setText(photo.location);
         tvLikes.setText(Integer.toString(photo.likes));
         ivPhoto.setImageResource(0);
-        Picasso.with(getContext()).load(photo.imageUrl).into(ivPhoto);
-//        ivPhoto.setImageURI(photo.imageUrl);
+        Picasso.with(getContext()).load(photo.imageUrl).placeholder(R.drawable.placeholder).into(ivPhoto);
+
+        com.squareup.picasso.Transformation transformation = new RoundedTransformationBuilder()
+                .cornerRadiusDp(100)
+                .oval(true)
+                .build();
+        Picasso.with(getContext()).load(photo.authorPhoto).placeholder(R.drawable.placeholder).fit().transform(transformation).into(ivAuthorPhoto);
 
         return convertView;
     }

@@ -1,11 +1,15 @@
 package com.edward.instagramphotoviewer;
 
+import android.app.Activity;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -22,16 +26,27 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
-public class PhotoStreamActivity extends ActionBarActivity {
+public class PhotoStreamActivity extends Activity {
 
     public static final String CLIENT_ID = "4270539ed0654e9cb51dbafeadb42ae6";
     private ArrayList<Photo> photos;
     private PhotoAdapter aPhotos;
 
+    private SwipeRefreshLayout swipeContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photos);
+
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchPopularPhotos();
+            }
+        });
+
         photos = new ArrayList<>();
         aPhotos = new PhotoAdapter(this, photos);
         ListView lvPhotos = (ListView) findViewById(R.id.lvPhotos);
@@ -48,6 +63,7 @@ public class PhotoStreamActivity extends ActionBarActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 JSONArray photosJSON = null;
+                aPhotos.clear();
                 try {
                     photosJSON = response.getJSONArray("data");
                     for (int i = 0; i < photosJSON.length(); i++) {
@@ -59,8 +75,10 @@ public class PhotoStreamActivity extends ActionBarActivity {
                         photo.likes = photoJSON.getJSONObject("likes").getInt("count");
                         photo.createdAt = photoJSON.getString("created_time");
                         photo.link = photoJSON.getString("link");
+                        photo.location = photoJSON.getString("location");
                         photo.imageUrl = photoJSON.getJSONObject("images").getJSONObject("standard_resolution").getString("url");
                         photo.imageHeight = photoJSON.getJSONObject("images").getJSONObject("standard_resolution").getInt("height");
+                        photo.authorPhoto = photoJSON.getJSONObject("user").getString("profile_picture");
                         photos.add(photo);
                     }
 
@@ -69,6 +87,7 @@ public class PhotoStreamActivity extends ActionBarActivity {
                 }
 
                 aPhotos.notifyDataSetChanged();
+                swipeContainer.setRefreshing(false);
             }
 
             @Override
